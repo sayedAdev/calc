@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* إعادة ضبط الأساسيات */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        /* خلفية الشاشة بالكامل */
+        body {
+            background-color: #e5e5e5; /* لون رمادي فاتح زي الفيديو */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* الآلة الحاسبة 3D (Neumorphism) */
+        .calculator {
+            background: #8a919d; /* لون الآلة الرمادي الغامق */
+            width: 320px;
+            padding: 20px;
+            border-radius: 35px;
+            box-shadow: 
+                20px 20px 40px #c3c3c3, 
+                -20px -20px 40px #ffffff,
+                inset 2px 2px 5px rgba(255,255,255,0.2),
+                inset -3px -3px 5px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        /* الشاشة */
+        .screen {
+            background: #5b626e;
+            color: #fff;
+            font-size: 3rem;
+            text-align: right;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            min-height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            box-shadow: 
+                inset 4px 4px 10px rgba(0,0,0,0.3),
+                inset -4px -4px 10px rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+
+        /* شبكة الأزرار */
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        /* الأزرار العادية */
+        button {
+            border: none;
+            border-radius: 16px; /* أزرار مربعة بحواف دائرية */
+            background: #8a919d;
+            font-size: 1.4rem;
+            color: #d1d5db;
+            cursor: pointer;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 
+                5px 5px 10px rgba(0,0,0,0.15),
+                -5px -5px 10px rgba(255,255,255,0.2),
+                inset 1px 1px 2px rgba(255,255,255,0.1);
+            transition: all 0.1s;
+        }
+
+        button:active {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0,0,0,0.2),
+                inset -4px -4px 8px rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* زر الصفر العريض */
+        .zero {
+            grid-column: span 2;
+            border-radius: 20px;
+            justify-content: flex-start;
+            padding-left: 25px;
+        }
+
+        /* زر يساوي الأزرق */
+        button.equals {
+            background: #1d4ed8;
+            color: white;
+            box-shadow: 
+                5px 5px 10px rgba(29, 78, 216, 0.3),
+                -5px -5px 10px rgba(255,255,255,0.2);
+        }
+        button.equals:active {
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4);
+        }
+
+        /* ---- نافذة الدفع والتعتيم (Modal) ---- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 999;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #ffffff;
+            width: 360px;
+            padding: 30px 25px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        /* الأيقونة والنصوص جوا المودال */
+        .lock-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #1d4ed8;
+        }
+
+        .modal h3 {
+            font-size: 1.4rem;
+            color: #111827;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .modal p {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* الخطط */
+        .plan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .plan.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .plan-info .title {
+            font-weight: 700;
+            color: #1f2937;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .plan-info .desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .plan .price {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
+        
+        .plan .price span {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* زر الدفع النهائي */
+        .pay-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+            height: auto;
+        }
+
+        .pay-btn:active {
+            background: #2563eb;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="screen" id="screen">0</div>
+
+        <div class="buttons">
+            <button onclick="clearScreen()">C</button>
+            <button onclick="appendValue('(')">( )</button>
+            <button onclick="appendValue('%')">%</button>
+            <button onclick="appendValue('/')">÷</button>
+            
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button onclick="appendValue('*')">×</button>
+            
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('-')">-</button>
+            
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('+')">+</button>
+            
+            <button class="zero" onclick="appendValue('0')">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal">
+            <div class="lock-icon">🔒</div>
+            <h3>اشترك علشان الحل يظهر</h3>
+            <p>You've reached the limit of free calculations. Please choose a premium plan to see your result!</p>
+            
+            <div class="plan selected" onclick="selectPlan(this)">
+                <div class="plan-info">
+                    <div class="title">One-Time Calculation</div>
+                    <div class="desc">Unlock this specific answer</div>
+                </div>
+                <div class="price">$9.99</div>
+            </div>
+
+            <div class="plan" onclick="selectPlan(this)">
+                <div class="plan-info">
+                    <div class="title">Calculator Pro</div>
+                    <div class="desc">Unlimited solutions</div>
+                </div>
+                <div class="price">$99.99<span>/mo</span></div>
+            </div>
+
+            <button class="pay-btn" onclick="payNow()">Pay to Unlock</button>
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById('screen');
+        const modal = document.getElementById('paymentModal');
+        let currentInput = '';
+        let hasCalculated = false;
+
+        function appendValue(value) {
+            // لو اليوزر ضغط على زرار بعد ما الدفع ظهر، نصفر الشاشة
+            if(hasCalculated) {
+                currentInput = '';
+                hasCalculated = false;
+            }
+
+            if (screen.innerText === '0' && value !== '.') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            screen.innerText = currentInput;
+        }
+
+        function clearScreen() {
+            currentInput = '';
+            screen.innerText = '0';
+            modal.classList.remove('show');
+            hasCalculated = false;
+        }
+
+        function calculate() {
+            if (currentInput !== '') {
+                // إظهار نافذة الدفع وتعتيم الشاشة بالكامل
+                modal.classList.add('show');
+                hasCalculated = true;
+            }
+        }
+
+        function selectPlan(element) {
+            document.querySelectorAll('.plan').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        function payNow() {
+            try {
+                // حساب النتيجة بعد "الدفع"
+                let result = eval(currentInput);
+                alert("Payment Successful! Your result is: " + result);
+                screen.innerText = result;
+                currentInput = result.toString();
+            } catch(e) {
+                alert("Error in calculation!");
+            }
+            modal.classList.remove('show');
+        }
+    </script>
+</body>
+</html>

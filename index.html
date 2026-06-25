@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My first calculator app</title>
     <style>
         /* إعادة ضبط الأساسيات */
         * {
@@ -15,7 +16,7 @@
 
         /* خلفية الشاشة بالكامل */
         body {
-            background-color: #e5e5e5; /* لون رمادي فاتح زي الفيديو */
+            background-color: #cbd5e1; 
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -26,13 +27,13 @@
 
         /* الآلة الحاسبة 3D (Neumorphism) */
         .calculator {
-            background: #8a919d; /* لون الآلة الرمادي الغامق */
+            background: #94a3b8; 
             width: 320px;
             padding: 20px;
             border-radius: 35px;
             box-shadow: 
-                20px 20px 40px #c3c3c3, 
-                -20px -20px 40px #ffffff,
+                20px 20px 40px #64748b, 
+                -20px -20px 40px #f8fafc,
                 inset 2px 2px 5px rgba(255,255,255,0.2),
                 inset -3px -3px 5px rgba(0,0,0,0.2);
             position: relative;
@@ -40,7 +41,7 @@
 
         /* الشاشة */
         .screen {
-            background: #5b626e;
+            background: #475569;
             color: #fff;
             font-size: 3rem;
             text-align: right;
@@ -52,7 +53,7 @@
             align-items: center;
             justify-content: flex-end;
             box-shadow: 
-                inset 4px 4px 10px rgba(0,0,0,0.3),
+                inset 4px 4px 10px rgba(0,0,0,0.4),
                 inset -4px -4px 10px rgba(255,255,255,0.1);
             overflow: hidden;
         }
@@ -67,10 +68,11 @@
         /* الأزرار العادية */
         button {
             border: none;
-            border-radius: 16px; /* أزرار مربعة بحواف دائرية */
-            background: #8a919d;
+            border-radius: 16px; 
+            background: #94a3b8;
             font-size: 1.4rem;
-            color: #d1d5db;
+            color: #1e293b;
+            font-weight: 600;
             cursor: pointer;
             height: 60px;
             display: flex;
@@ -78,16 +80,14 @@
             align-items: center;
             box-shadow: 
                 5px 5px 10px rgba(0,0,0,0.15),
-                -5px -5px 10px rgba(255,255,255,0.2),
-                inset 1px 1px 2px rgba(255,255,255,0.1);
+                -5px -5px 10px rgba(255,255,255,0.4);
             transition: all 0.1s;
         }
 
         button:active {
             box-shadow: 
                 inset 4px 4px 8px rgba(0,0,0,0.2),
-                inset -4px -4px 8px rgba(255,255,255,0.1);
-            color: #fff;
+                inset -4px -4px 8px rgba(255,255,255,0.3);
         }
 
         /* زر الصفر العريض */
@@ -100,26 +100,23 @@
 
         /* زر يساوي الأزرق */
         button.equals {
-            background: #1d4ed8;
+            background: #2563eb;
             color: white;
             box-shadow: 
-                5px 5px 10px rgba(29, 78, 216, 0.3),
-                -5px -5px 10px rgba(255,255,255,0.2);
-        }
-        button.equals:active {
-            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.4);
+                5px 5px 10px rgba(37, 99, 235, 0.4),
+                -5px -5px 10px rgba(255,255,255,0.3);
         }
 
-        /* ---- نافذة الدفع والتعتيم (Modal) ---- */
+        /* ---- النوافذ المنبثقة والتعتيم (Modal) ---- */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -135,103 +132,160 @@
         }
 
         .modal {
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.9);
             width: 360px;
-            padding: 30px 25px;
+            padding: 25px;
             border-radius: 24px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             transform: scale(0.9);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: none;
         }
 
-        .modal-overlay.show .modal {
+        .modal-overlay.show .modal.active {
+            display: block;
             transform: scale(1);
         }
 
-        /* الأيقونة والنصوص جوا المودال */
-        .lock-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #1d4ed8;
+        /* القفل الأزرق من الفيديو */
+        .lock-icon-container {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            box-shadow: 0 8px 16px rgba(37,99,235,0.25);
         }
 
         .modal h3 {
-            font-size: 1.4rem;
-            color: #111827;
-            margin-bottom: 10px;
+            font-size: 1.3rem;
+            color: #0f172a;
+            margin-bottom: 8px;
             font-weight: 700;
         }
 
         .modal p {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 25px;
-            line-height: 1.5;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 20px;
+            line-height: 1.4;
         }
 
-        /* الخطط */
-        .plan {
+        /* الخطط واختيارات الدفع */
+        .plan, .pay-option {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            margin-bottom: 12px;
             cursor: pointer;
             text-align: left;
+            background: #fff;
             transition: all 0.2s;
         }
 
-        .plan.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+        .plan.selected, .pay-option:hover {
+            border-color: #2563eb;
+            background-color: #f0f6ff;
         }
 
-        .plan-info .title {
+        .plan-info .title, .pay-title {
             font-weight: 700;
-            color: #1f2937;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
+            color: #0f172a;
+            font-size: 0.9rem;
         }
 
         .plan-info .desc {
-            font-size: 0.8rem;
-            color: #6b7280;
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
         }
 
-        .plan .price {
+        .price {
             font-weight: 800;
-            font-size: 1.1rem;
-            color: #1f2937;
-        }
-        
-        .plan .price span {
-            font-size: 0.8rem;
-            color: #6b7280;
-            font-weight: 500;
+            font-size: 1rem;
+            color: #0f172a;
         }
 
-        /* زر الدفع النهائي */
-        .pay-btn {
-            background: #3b82f6;
+        /* الأزرار العريضة */
+        .action-btn {
+            background: #2563eb;
             color: white;
             border: none;
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+        }
+
+        /* --- واجهات بوابات الدفع الوهمية --- */
+        .back-btn {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            box-shadow: none;
             height: auto;
         }
 
-        .pay-btn:active {
-            background: #2563eb;
-            transform: scale(0.98);
+        /* ستايل لوجو فودافون كاش */
+        .vf-badge {
+            background: #e60000;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        /* ستايل لوجو بايبال */
+        .paypal-badge {
+            color: #003087;
+            font-style: italic;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .paypal-badge span { color: #0079c1; }
+
+        /* مدخلات الفيزا وفودافون كاش الوهمية */
+        .input-group {
+            text-align: left;
+            margin-bottom: 12px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #475569;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
     </style>
 </head>
@@ -239,7 +293,6 @@
 
     <div class="calculator">
         <div class="screen" id="screen">0</div>
-
         <div class="buttons">
             <button onclick="clearScreen()">C</button>
             <button onclick="appendValue('(')">( )</button>
@@ -267,10 +320,13 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="paymentModal">
-        <div class="modal">
-            <div class="lock-icon">🔒</div>
-            <h3>اشترك علشان الحل يظهر</h3>
+    <div class="modal-overlay" id="modalOverlay">
+        
+        <div class="modal active" id="modalPlans">
+            <div class="lock-icon-container">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            </div>
+            <h3>Unlock the Solution</h3>
             <p>You've reached the limit of free calculations. Please choose a premium plan to see your result!</p>
             
             <div class="plan selected" onclick="selectPlan(this)">
@@ -280,7 +336,6 @@
                 </div>
                 <div class="price">$9.99</div>
             </div>
-
             <div class="plan" onclick="selectPlan(this)">
                 <div class="plan-info">
                     <div class="title">Calculator Pro</div>
@@ -288,24 +343,96 @@
                 </div>
                 <div class="price">$99.99<span>/mo</span></div>
             </div>
-
-            <button class="pay-btn" onclick="payNow()">Pay to Unlock</button>
+            <button class="action-btn" onclick="openGateways()">Pay to Unlock</button>
         </div>
+
+        <div class="modal" id="modalGateways">
+            <button class="back-btn" onclick="switchModal('modalGateways', 'modalPlans')">← Back</button>
+            <h3>Select Payment Method</h3>
+            <p style="margin-bottom: 15px;">Secure checkout powered by Capitalism™</p>
+            
+            <div class="pay-option" onclick="switchModal('modalGateways', 'modalVF')">
+                <div class="pay-title">Vodafone Cash</div>
+                <div class="vf-badge">فودافون كاش</div>
+            </div>
+            <div class="pay-option" onclick="switchModal('modalGateways', 'modalPaypal')">
+                <div class="pay-title">PayPal Global</div>
+                <div class="paypal-badge">Pay<span>Pal</span></div>
+            </div>
+            <div class="pay-option" onclick="openCardGateway('International')">
+                <div class="pay-title">Credit / Debit Card</div>
+                <div class="price" style="font-size:0.75rem; color:#64748b;">Visa / MasterCard</div>
+            </div>
+        </div>
+
+        <div class="modal" id="modalVF">
+            <button class="back-btn" onclick="switchModal('modalVF', 'modalGateways')">← Back</button>
+            <h3 style="color:#e60000;">Vodafone Cash 🔴</h3>
+            <p>أدخل رقم محفظتك الذكية لإتمام عملية الدفع الفوري</p>
+            <div class="input-group">
+                <label>رقم الهاتف المحمول (11 رقم)</label>
+                <input type="tel" placeholder="010XXXXXXXX" maxlength="11">
+            </div>
+            <div class="input-group">
+                <label>الرقم السري للمحفظة (PIN)</label>
+                <input type="password" placeholder="XXXXXX" maxlength="6">
+            </div>
+            <button class="action-btn" style="background:#e60000;" onclick="processFakePayment('Vodafone Cash')">تأكيد الدفع والخصم</button>
+        </div>
+
+        <div class="modal" id="modalPaypal">
+            <button class="back-btn" onclick="switchModal('modalPaypal', 'modalGateways')">← Back</button>
+            <h3 class="paypal-badge">Pay<span>Pal</span> Secure Checkout</h3>
+            <p>Log in to your PayPal account to complete calculation purchase.</p>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" placeholder="example@paypal.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button class="action-btn" style="background:#003087;" onclick="processFakePayment('PayPal')">Log In & Pay</button>
+        </div>
+
+        <div class="modal" id="modalCard">
+            <button class="back-btn" onclick="switchModal('modalCard', 'modalGateways')">← Back</button>
+            <h3 id="cardTitle">Card Checkout</h3>
+            <p>Enter your card credentials securely.</p>
+            <div class="input-group">
+                <label>Cardholder Name</label>
+                <input type="text" placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label>Card Number</label>
+                <input type="text" placeholder="4000 1234 5678 9010" maxlength="19">
+            </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label>Expiry Date</label>
+                    <input type="text" placeholder="MM/YY" maxlength="5">
+                </div>
+                <div class="input-group">
+                    <label>CVV / CVC</label>
+                    <input type="password" placeholder="•••" maxlength="3">
+                </div>
+            </div>
+            <button class="action-btn" style="background:#0f172a;" onclick="processFakePayment('Card')">Submit Payment</button>
+        </div>
+
     </div>
 
     <script>
         const screen = document.getElementById('screen');
-        const modal = document.getElementById('paymentModal');
+        const overlay = document.getElementById('modalOverlay');
         let currentInput = '';
         let hasCalculated = false;
 
         function appendValue(value) {
-            // لو اليوزر ضغط على زرار بعد ما الدفع ظهر، نصفر الشاشة
             if(hasCalculated) {
                 currentInput = '';
                 hasCalculated = false;
             }
-
             if (screen.innerText === '0' && value !== '.') {
                 currentInput = value;
             } else {
@@ -317,14 +444,16 @@
         function clearScreen() {
             currentInput = '';
             screen.innerText = '0';
-            modal.classList.remove('show');
+            overlay.classList.remove('show');
             hasCalculated = false;
         }
 
         function calculate() {
             if (currentInput !== '') {
-                // إظهار نافذة الدفع وتعتيم الشاشة بالكامل
-                modal.classList.add('show');
+                // إعادة تفعيل واجهة الخطط الأولى عند كل عملية جديدة
+                document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+                document.getElementById('modalPlans').classList.add('active');
+                overlay.classList.add('show');
                 hasCalculated = true;
             }
         }
@@ -334,18 +463,34 @@
             element.classList.add('selected');
         }
 
-        function payNow() {
+        function switchModal(currentId, targetId) {
+            document.getElementById(currentId).classList.remove('active');
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        function openGateways() {
+            switchModal('modalPlans', 'modalGateways');
+        }
+
+        function openCardGateway(type) {
+            document.getElementById('cardTitle').innerText = type + " Card Payment";
+            switchModal('modalGateways', 'modalCard');
+        }
+
+        function processFakePayment(method) {
             try {
-                // حساب النتيجة بعد "الدفع"
                 let result = eval(currentInput);
-                alert("Payment Successful! Your result is: " + result);
+                // رسالة تأكيد هزلية تفضح المقلب
+                alert(`💸 تم سحب المبلغ بنجاح عبر [${method}]!\n\nشكراً لك على دعم الرأسمالية الفاشلة. ناتج عمليتك المعقدة جداً هو: ${result}`);
                 screen.innerText = result;
                 currentInput = result.toString();
             } catch(e) {
                 alert("Error in calculation!");
             }
-            modal.classList.remove('show');
+            overlay.classList.remove('show');
         }
     </script>
 </body>
 </html>
+
+```
